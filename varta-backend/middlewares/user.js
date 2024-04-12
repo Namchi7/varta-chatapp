@@ -78,7 +78,9 @@ export const checkUserLogin = async (req, res, next) => {
   // Fetching the user data from the decoded token data
   const userInfo = await getUser(dcd.username);
 
-  if (userInfo.length === 0) return res.json({ loggedIn: false, username: "" });
+  if (userInfo?.length === 0) {
+    return res.json({ loggedIn: false, username: "" });
+  }
 
   req.username = userInfo[0].username;
 

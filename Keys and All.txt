@@ -1,0 +1,3 @@
+DB Pwd: vartaKaMajbootPassword123456
+Link: mongodb+srv://aman6143kumar6:vartaKaMajbootPassword123456@varta.wag8wep.mongodb.net/?retryWrites=true&w=majority&appName=varta
+JWT Secret Key: MeriMarziMainKuchBhiKaruTujheKya123456
