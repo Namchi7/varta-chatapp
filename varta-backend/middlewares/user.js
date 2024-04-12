@@ -47,6 +47,7 @@ export const handleUserLogin = async (req, res, next) => {
         res.cookie("authentication", token, {
           path: "/",
           sameSite: "none",
+          httpOnly: true,
           secure: true,
           expires: new Date(Date.now() + expireTime),
         });
