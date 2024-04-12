@@ -39,11 +39,14 @@ export default function ChatContacts() {
 
   const searchUsernameData = async () => {
     const res = await fetch(
-      `${serverURI}/find-username-info?username=${searchUsername}`
+      `${serverURI}/find-username-info?username=${searchUsername}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
     );
 
     const result = await res.json();
-    console.log(result, "Fetch");
 
     setUsernameResult(result);
   };
