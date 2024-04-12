@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
   socket.on("new-message", (msg) => {
     console.log(msg.recipientId, socket.userId, "See here ^^^^^^^^^^^");
     // const receiver = users[msg.recipientId];
-    socket.in(msg.recipientId).emit("send-message", msg.message_data);
+    socket.in(msg.recipientId).emit("new-message", msg.message_data);
   });
 
   socket.on("disconnect", () => {
