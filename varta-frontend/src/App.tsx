@@ -1,11 +1,13 @@
+import { useAppDispatch } from "./redux/hooks";
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+
 import LoggedOut from "./utils/LoggedOut";
 import Home from "./Components/Home";
 import Login from "./Components/Login";
 import Register from "./Components/Register";
 import ProtectedRoute from "./utils/ProtectedRoute";
-import { useAppDispatch } from "./redux/hooks";
-import { useEffect } from "react";
+
 import { fetchLoginStatus } from "./redux/reducers/loginCheckPage";
 
 export default function App() {
