@@ -1,15 +1,21 @@
+import { Dispatch, SetStateAction } from "react";
+
 import logout from "../assets/images/logout.png";
 import avatarPlaceholder from "../assets/images/avatar-placeholder.png";
 import { useCallback } from "react";
 import { useAppDispatch } from "../redux/hooks";
 import { fetchLoginStatus } from "../redux/reducers/loginCheckPage";
 
+interface PropsType {
+  setLogoutLoading: Dispatch<SetStateAction<boolean>>;
+}
+
 interface logoutResultType {
   loggedIn: boolean;
   username: string;
 }
 
-export default function Header() {
+export default function Header(props: PropsType) {
   const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
   const dispatch = useAppDispatch();
 
@@ -18,12 +24,16 @@ export default function Header() {
   }, []);
 
   const logoutUser = async () => {
+    props.setLogoutLoading(true);
+
     const res = await fetch(`${serverURI}/logout`, {
       method: "GET",
       credentials: "include",
     });
 
     const result: logoutResultType = await res.json();
+
+    props.setLogoutLoading(true);
 
     if (!result?.loggedIn) {
       setLogoutCookie();
