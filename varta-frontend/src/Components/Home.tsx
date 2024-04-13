@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="w-full h-full flex flex-col justify-start items-center overflow-x-hidden">
       <Header />
-      <div className="w-full h-[calc(100vh-50px)] min-h-[calc(100vh - 50px)] shrink-0 flex flex-nowrap justify-between items-center gap-2 sm:gap-4  px-2 sm:px-4 pt-2 sm:pt-4 pb-4 overflow-hidden">
+      <div className="w-full h-[calc(100%-50px)] shrink-0 flex flex-nowrap justify-between items-center gap-2 sm:gap-4  px-2 sm:px-4 pt-2 sm:pt-4 pb-4 overflow-hidden">
         <ChatContacts />
         <Chat />
       </div>
