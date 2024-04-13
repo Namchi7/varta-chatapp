@@ -18,7 +18,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="w-full h-full flex flex-nowrap justify-start items-center overflow-x-hidden">
+    <div className="h-[100svh] w-full sm:h-full flex flex-nowrap justify-start items-center overflow-x-hidden">
       <Routes>
         <Route
           path="/"
