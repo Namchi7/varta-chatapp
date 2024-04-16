@@ -5,6 +5,13 @@ interface resultType {
   username: string;
 }
 
+interface initialStateType {
+  isLoading: boolean;
+  login: boolean;
+  username: string;
+  isError: boolean;
+}
+
 export const fetchLoginStatus = createAsyncThunk(
   "fetchLoginStatus",
   async () => {
@@ -21,14 +28,16 @@ export const fetchLoginStatus = createAsyncThunk(
   }
 );
 
+const initialState: initialStateType = {
+  isLoading: false,
+  login: false,
+  username: "",
+  isError: false,
+};
+
 const loginCheckSlice = createSlice({
   name: "loginCheck",
-  initialState: {
-    isLoading: false,
-    login: false,
-    username: "",
-    isError: false,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchLoginStatus.pending, (state) => {

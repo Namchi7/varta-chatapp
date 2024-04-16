@@ -1,4 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { dataForChat } from "../../Components/ChatContacts";
+
+interface initialStateType {
+  isLoading: boolean;
+  isError: boolean;
+  data: dataForChat[];
+}
 
 export const fetchChatContactsData = createAsyncThunk(
   "fetchChatContactsData",
@@ -16,13 +23,15 @@ export const fetchChatContactsData = createAsyncThunk(
   }
 );
 
+const initialState: initialStateType = {
+  isLoading: false,
+  data: [],
+  isError: false,
+};
+
 const getChatContactsSlice = createSlice({
   name: "chatContacts",
-  initialState: {
-    isLoading: false,
-    data: [],
-    isError: false,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchChatContactsData.pending, (state) => {

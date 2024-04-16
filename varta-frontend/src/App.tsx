@@ -9,6 +9,7 @@ import Register from "./Components/Register";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 import { fetchLoginStatus } from "./redux/reducers/loginCheckPage";
+import PopUpMessage from "./utils/PopUpMessage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -19,6 +20,7 @@ export default function App() {
 
   return (
     <div className="h-[100svh] w-full sm:h-full flex flex-nowrap justify-start items-center overflow-x-hidden">
+      <PopUpMessage />
       <Routes>
         <Route
           path="/"

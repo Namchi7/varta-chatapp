@@ -1,4 +1,16 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { messageType } from "../../Components/Chat";
+
+interface payloadDataType {
+  prevData: messageType[];
+  newMessage: messageType;
+}
+
+interface initialStateType {
+  isLoading: boolean;
+  isError: boolean;
+  data: messageType[];
+}
 
 export const fetchChatMessagesData = createAsyncThunk(
   "fetchChatMessagesData",
@@ -16,14 +28,24 @@ export const fetchChatMessagesData = createAsyncThunk(
   }
 );
 
+const initialState: initialStateType = {
+  isLoading: false,
+  data: [],
+  isError: false,
+};
+
 const getChatMessagesSlice = createSlice({
   name: "chatMessages",
-  initialState: {
-    isLoading: false,
-    data: [],
-    isError: false,
+  initialState,
+  reducers: {
+    setMessageData: (state, action: PayloadAction<payloadDataType>) => {
+      const prevData: messageType[] = action.payload.prevData;
+      const newMessage: messageType = action.payload.newMessage;
+
+      // console.log([...prevData, newMessage]);
+      state.data = [...prevData, newMessage];
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchChatMessagesData.pending, (state) => {
       state.isLoading = true;
@@ -40,5 +62,7 @@ const getChatMessagesSlice = createSlice({
     });
   },
 });
+
+export const { setMessageData } = getChatMessagesSlice.actions;
 
 export default getChatMessagesSlice.reducer;

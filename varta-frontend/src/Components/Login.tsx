@@ -4,6 +4,7 @@ import { useAppDispatch } from "../redux/hooks";
 import { fetchLoginStatus } from "../redux/reducers/loginCheckPage";
 import { resetContact } from "../redux/reducers/chatContactNamePage";
 import Loader from "../utils/Loader";
+import { showPopUp } from "../utils/PopUpMessage";
 
 interface loginResultType {
   loggedIn: boolean;
@@ -60,9 +61,14 @@ export default function Login() {
     setLoginLoading(false);
 
     if (result.loggedIn) {
+      showPopUp({ success: true, message: "User logged-in." });
       dispatch(fetchLoginStatus());
     } else {
       console.log("Could not log in user.");
+      showPopUp({
+        success: true,
+        message: "Could not log in user. Please try again",
+      });
     }
   };
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Loader from "../utils/Loader";
+import { showPopUp } from "../utils/PopUpMessage";
 
 interface registerResultType {
   msg: string;
@@ -43,6 +44,17 @@ export default function Register() {
     }
   };
 
+  const clearRegisterForm = () => {
+    (document.querySelector("[data-register-name]") as HTMLInputElement).value =
+      "";
+    (
+      document.querySelector("[data-register-username]") as HTMLInputElement
+    ).value = "";
+    (
+      document.querySelector("[data-register-password]") as HTMLInputElement
+    ).value = "";
+  };
+
   const registerNewUser = async () => {
     const name: string = (
       document.querySelector("[data-register-name]") as HTMLInputElement
@@ -69,8 +81,20 @@ export default function Register() {
 
     if (result.success) {
       console.log("User created.");
+
+      showPopUp({
+        success: true,
+        message: "User has been created. Login to continue.",
+      });
+
+      clearRegisterForm();
     } else {
       console.log("Could not create user.");
+
+      showPopUp({
+        success: false,
+        message: "Could not create user. Please try again.",
+      });
     }
   };
 

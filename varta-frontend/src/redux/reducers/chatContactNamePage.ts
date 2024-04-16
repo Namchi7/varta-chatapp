@@ -5,12 +5,19 @@ interface contactType {
   username: string;
 }
 
+interface initialStateType {
+  name: string;
+  username: string;
+}
+
+const initialState: initialStateType = {
+  name: "",
+  username: "",
+}
+
 const chatContactNameSlice = createSlice({
   name: "chatContactName",
-  initialState: {
-    name: "",
-    username: "",
-  },
+  initialState,
   reducers: {
     setContact: (state, action: PayloadAction<contactType>) => {
       state.name = action.payload.name;

@@ -5,25 +5,25 @@ interface Props {
   messageData: messageType;
 }
 
+export const resolveMessageTime = (timeStr: string) => {
+  const msgTime = new Date(timeStr);
+
+  const hrs: number = msgTime.getHours();
+  let min: string = msgTime.getMinutes().toString();
+
+  if (min.toString().length === 1) {
+    min = "0" + min;
+  }
+
+  const time: string = `${hrs}:${min}`;
+
+  return time;
+};
+
 export default function Message(props: Props) {
   const messageData = props.messageData;
 
   const username: string = useAppSelector((state) => state?.loggedIn?.username);
-
-  const resolveMessageTime = (timeStr: string) => {
-    const msgTime = new Date(timeStr);
-
-    const hrs: number = msgTime.getHours();
-    let min: string = msgTime.getMinutes().toString();
-
-    if (min.toString().length === 1) {
-      min = "0" + min;
-    }
-
-    const time: string = `${hrs}:${min}`;
-
-    return time;
-  };
 
   return (
     <div

@@ -7,7 +7,7 @@ import back from "../assets/images/back.png";
 import Message from "./Message";
 import { useCallback, useEffect } from "react";
 import { fetchChatContactsData } from "../redux/reducers/getChatContactsPage";
-import { fetchChatMessagesData } from "../redux/reducers/getChatMessagesPage";
+import { setMessageData } from "../redux/reducers/getChatMessagesPage";
 import { resetContact } from "../redux/reducers/chatContactNamePage";
 // import chatMessages from "../assets/messages.json";
 
@@ -40,6 +40,9 @@ export default function Chat() {
   const messages: messageType[] | null = useAppSelector(
     (state) => state?.chatMessages?.data
   );
+  const messageLoading: boolean = useAppSelector(
+    (state) => state?.chatMessages?.isLoading
+  );
   const username: string = useAppSelector((state) => state?.loggedIn?.username);
   const contactName: string = useAppSelector(
     (state) => state?.chatContact?.name
@@ -48,22 +51,22 @@ export default function Chat() {
     (state) => state?.chatContact?.username
   );
 
-  // const addMessageToChat = (messageData: messageType) => {
-  //   const chatWindow = document.querySelector(
-  //     "[data-chat-messages]"
-  //   ) as HTMLElement;
+  let messageD: messageType[] = [];
+  if (!messageLoading) {
+    messageD = Array.from(messages);
+  }
 
-  //   if (contactUsername === messageData.contact_username) {
-  //     ReactDOM.render(<Message messageData={messageData} />, chatWindow);
-  //   }
-  // };
-
-  const updateChatAppData = useCallback((cu: string) => {
-    dispatch(fetchChatContactsData());
-    dispatch(fetchChatMessagesData(cu));
+  const updateChatMessages = useCallback((newMessage: messageType) => {
+    dispatch(setMessageData({ prevData: messageD, newMessage: newMessage }));
   }, []);
 
-  const sendMessage = async (cu: string) => {
+  const updateChatContactData = useCallback(() => {
+    dispatch(fetchChatContactsData());
+
+    // dispatch(fetchChatMessagesData(contactUsername));
+  }, []);
+
+  const sendMessage = async () => {
     const messageText = document.querySelector(
       "[data-message-text]"
     ) as HTMLTextAreaElement;
@@ -84,17 +87,16 @@ export default function Chat() {
       return;
     }
 
-    console.log(result);
-
     const toSocket = {
       recipientId: contactUsername,
       message_data: result.message_data,
     };
 
-    // addMessageToChat(result.message_data);
+    // messageD.push(result.message_data);
+    updateChatMessages(result.message_data);
 
     socket.emit("new-message", toSocket);
-    updateChatAppData(cu);
+    updateChatContactData();
   };
 
   const clearContactName = useCallback(() => {
@@ -122,10 +124,20 @@ export default function Chat() {
     if (chatMessages !== null)
       chatMessages!.scrollTop = chatMessages!.scrollHeight;
 
-    socket.on("new-message", () => {
-      updateChatAppData(contactUsername);
+    socket.on("new-message", (newMessage: messageType) => {
+      if (newMessage.receiver_username === username) {
+        updateChatMessages(newMessage);
+      }
+
+      updateChatContactData();
     });
   }, [messages]);
+
+  useEffect(() => {
+    if (!messageLoading) {
+      messageD = Array.from(messages);
+    }
+  }, [messageLoading]);
 
   return (
     <div
@@ -162,8 +174,8 @@ export default function Chat() {
             data-chat-messages
             className="w-full h-full overflow-y-scroll overflow-x-hidden flex flex-col justify-start items-center gap-1 px-3 py-4"
           >
-            {messages &&
-              messages!.map((messageData: messageType, index: number) => (
+            {messageD &&
+              messageD!.map((messageData: messageType, index: number) => (
                 <Message messageData={messageData} key={index} />
               ))}
           </div>
@@ -178,7 +190,7 @@ export default function Chat() {
             <div
               onClick={(e) => {
                 e.preventDefault();
-                sendMessage(contactUsername);
+                sendMessage();
               }}
               className="bg-[#159AC4] text-white p-4 rounded-[6px] hover:cursor-pointer"
             >

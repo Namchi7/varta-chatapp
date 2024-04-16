@@ -5,6 +5,7 @@ import avatarPlaceholder from "../assets/images/avatar-placeholder.png";
 import { useCallback } from "react";
 import { useAppDispatch } from "../redux/hooks";
 import { fetchLoginStatus } from "../redux/reducers/loginCheckPage";
+import { showPopUp } from "../utils/PopUpMessage";
 
 interface PropsType {
   setLogoutLoading: Dispatch<SetStateAction<boolean>>;
@@ -33,10 +34,13 @@ export default function Header(props: PropsType) {
 
     const result: logoutResultType = await res.json();
 
-    props.setLogoutLoading(true);
+    props.setLogoutLoading(false);
 
     if (!result?.loggedIn) {
+      showPopUp({ success: true, message: "User logged-out." });
       setLogoutCookie();
+    } else {
+      showPopUp({ success: false, message: "Could not log out user." });
     }
   };
 
