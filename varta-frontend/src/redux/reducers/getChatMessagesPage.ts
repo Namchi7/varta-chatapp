@@ -42,7 +42,6 @@ const getChatMessagesSlice = createSlice({
       const prevData: messageType[] = action.payload.prevData;
       const newMessage: messageType = action.payload.newMessage;
 
-      console.log(prevData, newMessage);
       state.data = [...prevData, newMessage];
     },
   },

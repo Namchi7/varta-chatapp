@@ -123,6 +123,7 @@ export default function Chat() {
 
     socket.on("new-message", async (newMessage: messageType) => {
       if (newMessage.receiver_username === username) {
+        console.log(messages);
         updateChatMessages(messages, newMessage);
       }
 
