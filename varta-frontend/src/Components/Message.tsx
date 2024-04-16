@@ -30,13 +30,13 @@ export default function Message(props: Props) {
       data-message-id={messageData._id}
       className={
         "max-w-[85%] flex flex-col justify-start items-end gap-[0.1rem] " +
-        (messageData.receiver_username === username ? "self-end" : "self-start")
+        (messageData.contact_username === username ? "self-end" : "self-start")
       }
     >
       <div
         className={
           "px-3 py-2 text-right rounded-[6px] shadow-msg " +
-          (messageData.receiver_username === username
+          (messageData.contact_username === username
             ? "bg-slate-100 text-right rounded-tr-none"
             : "bg-[#159AC4] text-white rounded-tl-none")
         }
@@ -46,7 +46,7 @@ export default function Message(props: Props) {
       <div
         className={
           "text-black text-[0.75rem] " +
-          (messageData.receiver_username === username
+          (messageData.contact_username === username
             ? "text-right self-end"
             : "text-left self-start")
         }

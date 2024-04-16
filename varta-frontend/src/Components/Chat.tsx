@@ -40,9 +40,6 @@ export default function Chat() {
   const messages: messageType[] | null = useAppSelector(
     (state) => state?.chatMessages?.data
   );
-  const messageLoading: boolean = useAppSelector(
-    (state) => state?.chatMessages?.isLoading
-  );
   const username: string = useAppSelector((state) => state?.loggedIn?.username);
   const contactName: string = useAppSelector(
     (state) => state?.chatContact?.name
@@ -51,14 +48,12 @@ export default function Chat() {
     (state) => state?.chatContact?.username
   );
 
-  let messageD: messageType[] = [];
-  if (!messageLoading) {
-    messageD = Array.from(messages);
-  }
-
-  const updateChatMessages = useCallback((newMessage: messageType) => {
-    dispatch(setMessageData({ prevData: messageD, newMessage: newMessage }));
-  }, []);
+  const updateChatMessages = useCallback(
+    (msg: messageType[], newMessage: messageType) => {
+      dispatch(setMessageData({ prevData: msg, newMessage: newMessage }));
+    },
+    []
+  );
 
   const updateChatContactData = useCallback(() => {
     dispatch(fetchChatContactsData());
@@ -70,11 +65,12 @@ export default function Chat() {
     const messageText = document.querySelector(
       "[data-message-text]"
     ) as HTMLTextAreaElement;
+
     const text: string = messageText.value;
     messageText.value = "";
 
     const res = await fetch(
-      `${serverURI}/create-message?contact=${contactUsername}&text=${text}`,
+      `${serverURI}/create-message?receiver=${contactUsername}&text=${text}`,
       {
         method: "POST",
         credentials: "include",
@@ -93,9 +89,10 @@ export default function Chat() {
     };
 
     // messageD.push(result.message_data);
-    updateChatMessages(result.message_data);
+    updateChatMessages(messages, result.message_data);
 
     socket.emit("new-message", toSocket);
+
     updateChatContactData();
   };
 
@@ -124,20 +121,43 @@ export default function Chat() {
     if (chatMessages !== null)
       chatMessages!.scrollTop = chatMessages!.scrollHeight;
 
-    socket.on("new-message", (newMessage: messageType) => {
+    socket.on("new-message", async (newMessage: messageType) => {
       if (newMessage.receiver_username === username) {
-        updateChatMessages(newMessage);
+        updateChatMessages(messages, newMessage);
       }
+
+      // ##################
+      // Message mark as read
+
+      if (newMessage.contact_username === contactUsername) {
+        const res = await fetch(
+          `${serverURI}/mark-read-message?contact=${newMessage.contact_username}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const result = await res.json();
+
+        if (result.success) {
+          console.log("Message marked as read");
+        } else {
+          console.log("Message not marked as read");
+        }
+      }
+
+      // ##################
 
       updateChatContactData();
     });
   }, [messages]);
 
-  useEffect(() => {
-    if (!messageLoading) {
-      messageD = Array.from(messages);
-    }
-  }, [messageLoading]);
+  // useEffect(() => {
+  //   if (!messageLoading) {
+  //     messageD = Array.from(messages);
+  //   }
+  // }, [messageLoading]);
 
   return (
     <div
@@ -174,8 +194,8 @@ export default function Chat() {
             data-chat-messages
             className="w-full h-full overflow-y-scroll overflow-x-hidden flex flex-col justify-start items-center gap-1 px-3 py-4"
           >
-            {messageD &&
-              messageD!.map((messageData: messageType, index: number) => (
+            {messages &&
+              messages!.map((messageData: messageType, index: number) => (
                 <Message messageData={messageData} key={index} />
               ))}
           </div>

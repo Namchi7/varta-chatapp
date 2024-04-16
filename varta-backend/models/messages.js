@@ -3,8 +3,8 @@ import { MessagesModel } from "./model.js";
 export const createMessage = async (messageInfo) => {
   try {
     const newMessage = new MessagesModel({
-      receiver_username: messageInfo.username,
-      contact_username: messageInfo.contact,
+      receiver_username: messageInfo.receiver,
+      contact_username: messageInfo.sender,
       is_group_chat: messageInfo.is_group_chat,
       is_deleted: false,
       unseen: 1,
@@ -13,7 +13,7 @@ export const createMessage = async (messageInfo) => {
 
     const result = await newMessage.save();
 
-    if (result?.receiver_username === messageInfo.username) {
+    if (result?.receiver_username === messageInfo.receiver) {
       return { result: result, success: true };
     } else {
       return {
@@ -61,7 +61,7 @@ export const getAllMessages = async (username, contact) => {
   }
 };
 
-export const markSeenMessages = async (messageInfo) => {
+export const markReadMessages = async (messageInfo) => {
   try {
     const result = await MessagesModel.updateMany(
       {
@@ -74,10 +74,16 @@ export const markSeenMessages = async (messageInfo) => {
 
     if (result.modifiedCount > 0) {
       console.log("Message seen.");
-      return { success: true };
+      return {
+        success: true,
+        msg: "Message marked as read.",
+      };
     } else {
       console.log("Message unseen.");
-      return { success: true };
+      return {
+        success: false,
+        msg: "Message not marked as read.",
+      };
     }
   } catch (error) {
     console.log(error);

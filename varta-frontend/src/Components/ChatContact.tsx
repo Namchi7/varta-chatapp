@@ -17,6 +17,8 @@ interface setContactType {
 }
 
 export default function ChatContact(props: Props) {
+  const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
+
   const dispatch = useAppDispatch();
   const contactData = props.contactData;
 
@@ -30,8 +32,29 @@ export default function ChatContact(props: Props) {
     dispatch(fetchChatMessagesData(contact));
   }, []);
 
-  const openChat = (contact: string) => {
+  const openChat = async (contact: string) => {
     fetchChatMessages(contact);
+
+    // ##################
+    // Message mark as read
+
+    const res = await fetch(
+      `${serverURI}/mark-read-message?contact=${contact}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    const result = await res.json();
+
+    if (result.success) {
+      console.log("Chat marked as read");
+    } else {
+      console.log("Chat not marked as read");
+    }
+
+    // ##################
   };
 
   return (

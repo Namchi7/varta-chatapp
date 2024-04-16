@@ -97,7 +97,7 @@ export default function ChatContacts() {
       <div className="relative w-full p-2 self-end">
         {usernameResult && (
           <div className="absolute bottom-[4rem] left-0 right-0 translate-x-[0.4rem] w-[calc(100%-0.75rem)] max-h-[7.5rem] h-fit rounded-[4px] flex flex-col-reverse justify-start items-start bg-slate-400 overflow-y-scroll ">
-            {usernameResult.map((user: userResultType) => {
+            {usernameResult!.map((user: userResultType, index: number) => {
               if (user.username !== username)
                 return (
                   <div
@@ -106,7 +106,8 @@ export default function ChatContacts() {
                       openNewChat(user.name, user.username);
                     }}
                     data-contact-username-result
-                    className="w-full text-left p-2 cursor-pointer"
+                    className="w-full text-left p-2 cursor-pointer "
+                    key={index}
                   >{`${user.name} (${user.username})`}</div>
                 );
             })}

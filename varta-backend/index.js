@@ -7,7 +7,11 @@ import {
   handleUserLogin,
   handleUserRegister,
 } from "./middlewares/user.js";
-import { createMessage, getAllMessages } from "./models/messages.js";
+import {
+  createMessage,
+  getAllMessages,
+  markReadMessages,
+} from "./models/messages.js";
 import { createUser, getUser, searchUser } from "./models/users.js";
 import { getAllChats } from "./models/chats.js";
 
@@ -65,26 +69,39 @@ app.get("/chat-messages", checkUserLogin, async (req, res) => {
 });
 
 app.post("/create-message", checkUserLogin, async (req, res) => {
-  const { contact, text } = req.query;
+  const { receiver, text } = req.query;
   const username = req.username;
+
   const messageInfo = {
-    username: username,
-    contact: contact,
+    sender: username,
+    receiver: receiver,
     is_group_chat: false,
     text: text,
   };
 
   const result = await createMessage(messageInfo);
 
-  if (result.success) {
+  if (result?.success) {
     res.json({
       msg: "Message Created.",
       success: true,
       message_data: result.result,
     });
   } else {
-    res.json({ msg: result.msg, success: false });
+    res.json({ msg: result?.msg, success: false });
   }
+});
+
+app.get("/mark-read-message", checkUserLogin, async (req, res) => {
+  const { contact } = req.query;
+  const username = req.username;
+
+  const result = await markReadMessages({
+    username: username,
+    contact_username: contact,
+  });
+
+  res.json(result);
 });
 
 app.get("/check-login", checkUserLogin, (req, res) => {
