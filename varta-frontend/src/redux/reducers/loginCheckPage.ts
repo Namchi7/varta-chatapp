@@ -3,12 +3,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface resultType {
   loggedIn: boolean;
   username: string;
+  name: string;
 }
 
 interface initialStateType {
   isLoading: boolean;
   login: boolean;
   username: string;
+  name: string;
   isError: boolean;
 }
 
@@ -32,6 +34,7 @@ const initialState: initialStateType = {
   isLoading: false,
   login: false,
   username: "",
+  name: "",
   isError: false,
 };
 
@@ -43,12 +46,14 @@ const loginCheckSlice = createSlice({
     builder.addCase(fetchLoginStatus.pending, (state) => {
       state.isLoading = true;
       state.username = "";
+      state.name = "";
       state.isError = false;
     });
     builder.addCase(fetchLoginStatus.fulfilled, (state, action) => {
       state.isLoading = false;
       state.login = action.payload.loggedIn;
       state.username = action.payload.username;
+      state.name = action.payload.name;
       state.isError = false;
     });
     builder.addCase(fetchLoginStatus.rejected, (state) => {

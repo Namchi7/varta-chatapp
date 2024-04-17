@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 import logout from "../assets/images/logout.png";
 import avatarPlaceholder from "../assets/images/avatar-placeholder.png";
 import { useCallback } from "react";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchLoginStatus } from "../redux/reducers/loginCheckPage";
 import { showPopUp } from "../utils/PopUpMessage";
 
@@ -19,6 +19,8 @@ interface logoutResultType {
 export default function Header(props: PropsType) {
   const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
   const dispatch = useAppDispatch();
+
+  const nameOfUser = useAppSelector((state) => state?.loggedIn?.name);
 
   const setLogoutCookie = useCallback(() => {
     dispatch(fetchLoginStatus());
@@ -49,6 +51,10 @@ export default function Header(props: PropsType) {
       <div className="text-[1.75rem] font-semibold text-[#f5f5f5]">Varta</div>
 
       <div className="flex flex-nowrap justify-end items-center gap-2">
+        <p className="text-[#f5f5f5] text-[0.75] sm:text-[0.95rem] font-semibold ">
+          {nameOfUser}
+        </p>
+
         <div className="w-8 h-8 rounded-[50%] bg-slate-200 overflow-hidden">
           <img src={avatarPlaceholder} alt="User" className="w-full h-full" />
         </div>

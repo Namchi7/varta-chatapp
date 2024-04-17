@@ -106,8 +106,9 @@ app.get("/mark-read-message", checkUserLogin, async (req, res) => {
 
 app.get("/check-login", checkUserLogin, (req, res) => {
   const username = req.username;
+  const name = req.name;
 
-  res.json({ loggedIn: true, username: username });
+  res.json({ loggedIn: true, username: username, name: name });
 });
 
 app.get("/login", handleUserLogin, (req, res) => {

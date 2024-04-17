@@ -41,7 +41,7 @@ export const getAllChats = async (username) => {
             {
               $project: {
                 username: "$_id",
-                useen_count: "$unseen_count",
+                unseen_count: "$unseen_count",
                 text: "$text",
                 time: "$time",
               },
@@ -83,7 +83,7 @@ export const getAllChats = async (username) => {
             {
               $project: {
                 username: "$_id",
-                useen_count: "$unseen_count",
+                unseen_count: "$unseen_count",
                 text: "$text",
                 time: "$time",
               },
@@ -126,7 +126,7 @@ export const getAllChats = async (username) => {
       {
         $project: {
           username: "$_id",
-          useen_count: "$unseen_count",
+          unseen_count: "$unseen_count",
           text: "$text",
           time: "$time",
         },
@@ -157,9 +157,14 @@ export const getAllChats = async (username) => {
           },
         },
       },
+      {
+        $sort: {
+          time: -1,
+        },
+      },
     ]);
 
-    chats.sort((a, b) => new Date(b.time) - new Date(a.time));
+    // chats.sort((a, b) => new Date(b.time) - new Date(a.time));
 
     return chats;
   } catch (error) {

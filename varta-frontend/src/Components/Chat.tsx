@@ -123,7 +123,6 @@ export default function Chat() {
 
     socket.on("new-message", async (newMessage: messageType) => {
       if (newMessage.receiver_username === username) {
-        console.log(messages);
         updateChatMessages(messages, newMessage);
       }
 
@@ -153,12 +152,6 @@ export default function Chat() {
       updateChatContactData();
     });
   }, [messages]);
-
-  // useEffect(() => {
-  //   if (!messageLoading) {
-  //     messageD = Array.from(messages);
-  //   }
-  // }, [messageLoading]);
 
   return (
     <div

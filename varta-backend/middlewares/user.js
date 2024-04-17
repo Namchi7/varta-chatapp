@@ -84,6 +84,7 @@ export const checkUserLogin = async (req, res, next) => {
   }
 
   req.username = userInfo[0].username;
+  req.name = userInfo[0].name;
 
   next();
 };
