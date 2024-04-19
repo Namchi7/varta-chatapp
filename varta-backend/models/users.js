@@ -27,11 +27,11 @@ export const getUser = async (username) => {
 };
 
 export const searchUser = async (username) => {
-  try {
-    const userInfo = await UsersModel.find({ username: { $regex: username } });
-    console.log(username, userInfo);
-    return userInfo;
-  } catch (error) {
-    console.log(error);
-  }
+  // try {
+  const userInfo = await UsersModel.find({ username: { $regex: username } });
+  console.log(username, userInfo);
+  return userInfo;
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };

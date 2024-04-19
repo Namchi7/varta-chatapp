@@ -14,6 +14,11 @@ import {
 } from "./models/messages.js";
 import { createUser, getUser, searchUser } from "./models/users.js";
 import { getAllChats } from "./models/chats.js";
+import CustomError from "./utils/customError.js";
+import errorHandler from "./middlewares/errorHandler.js";
+import asyncHandler from "./utils/asyncHandler.js";
+import isInvalidUsername from "./utils/checkValidUsernames.js";
+import isInvalidTextMessage from "./utils/checkValidTextMessage.js";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -40,68 +45,106 @@ app.get("/chats", checkUserLogin, async (req, res) => {
   res.json(chats);
 });
 
-app.get("/find-username-info", checkUserLogin, async (req, res) => {
-  const { username } = req.query;
+app.get(
+  "/find-username-info",
+  checkUserLogin,
+  asyncHandler(async (req, res) => {
+    const { username } = req.query;
 
-  const users = await searchUser(username);
+    const users = await searchUser(username);
 
-  res.json(users);
-});
+    res.json(users);
+  })
+);
 
-app.get("/username-available", async (req, res) => {
-  const { username } = req.query;
+app.get(
+  "/username-available",
+  asyncHandler(async (req, res, next) => {
+    const { username } = req.query;
 
-  const users = await getUser(username);
+    if (isInvalidUsername(username)) {
+      const err = new CustomError("Invalid username.", 401);
 
-  if (users.length !== 0) {
-    res.json({ isAvailable: false, msg: "User already exists." });
-  } else {
-    res.json({ isAvailable: true, msg: "Username available." });
-  }
-});
+      next(err);
+    } else {
+      const users = await getUser(username);
 
-app.get("/chat-messages", checkUserLogin, async (req, res) => {
-  const { contact } = req.query;
-  const username = req.username;
-  const chatMessages = await getAllMessages(username, contact);
+      if (users.length !== 0) {
+        res.json({ isAvailable: false, msg: "User already exists." });
+      } else {
+        res.json({ isAvailable: true, msg: "Username available." });
+      }
+    }
+  })
+);
 
-  res.json(chatMessages);
-});
+app.get(
+  "/chat-messages",
+  checkUserLogin,
+  asyncHandler(async (req, res) => {
+    const { contact } = req.query;
+
+    if (isInvalidUsername(contact)) {
+      const err = new CustomError("Invalid username.", 401);
+
+      next(err);
+    } else {
+      const username = req.username;
+      const chatMessages = await getAllMessages(username, contact);
+
+      res.json(chatMessages);
+    }
+  })
+);
 
 app.post("/create-message", checkUserLogin, async (req, res) => {
   const { receiver, text } = req.query;
-  const username = req.username;
 
-  const messageInfo = {
-    sender: username,
-    receiver: receiver,
-    is_group_chat: false,
-    text: text,
-  };
+  if (isInvalidUsername(receiver) || isInvalidTextMessage(text)) {
+    const err = new CustomError("Invalid username or text.", 401);
 
-  const result = await createMessage(messageInfo);
-
-  if (result?.success) {
-    res.json({
-      msg: "Message Created.",
-      success: true,
-      message_data: result.result,
-    });
+    next(err);
   } else {
-    res.json({ msg: result?.msg, success: false });
+    const username = req.username;
+
+    const messageInfo = {
+      sender: username,
+      receiver: receiver,
+      is_group_chat: false,
+      text: text,
+    };
+
+    const result = await createMessage(messageInfo);
+
+    if (result?.success) {
+      res.json({
+        msg: "Message Created.",
+        success: true,
+        message_data: result.result,
+      });
+    } else {
+      res.json({ msg: result?.msg, success: false });
+    }
   }
 });
 
 app.get("/mark-read-message", checkUserLogin, async (req, res) => {
   const { contact } = req.query;
-  const username = req.username;
 
-  const result = await markReadMessages({
-    username: username,
-    contact_username: contact,
-  });
+  if (isInvalidUsername(contact)) {
+    const err = new CustomError("Invalid username.", 401);
 
-  res.json(result);
+    next(err);
+  } else {
+    const username = req.username;
+
+    const result = await markReadMessages({
+      username: username,
+      contact_username: contact,
+    });
+
+    res.json(result);
+  }
 });
 
 app.get("/check-login", checkUserLogin, (req, res) => {
@@ -136,6 +179,21 @@ app.get("/logout", (req, res) => {
 
   res.json({ loggedIn: false, username: "" });
 });
+
+app.get("*", (req, res, next) => {
+  // const err = new Error(`Cannot find ${req.originalUrl} on the server!`);
+  // err.status = "fail";
+  // err.statusCode = 404;
+
+  const err = new CustomError(
+    `Cannot find ${req.originalUrl} on the server!`,
+    404
+  );
+
+  next(err);
+});
+
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);
