@@ -27,9 +27,9 @@ export const getAllChats = async (username) => {
             {
               $group: {
                 _id: "$receiver_username",
-                unseen_count: {
-                  $sum: "$unseen",
-                },
+                // unseen_count: {
+                //   $sum: "$unseen",
+                // },
                 text: {
                   $first: "$text",
                 },
@@ -113,7 +113,7 @@ export const getAllChats = async (username) => {
         $group: {
           _id: "$users.username",
           unseen_count: {
-            $sum: "$users.unseen",
+            $sum: "$users.unseen_count",
           },
           text: {
             $first: "$users.text",

@@ -9,6 +9,7 @@ import { useCallback, useEffect } from "react";
 import { fetchChatContactsData } from "../redux/reducers/getChatContactsPage";
 import { setMessageData } from "../redux/reducers/getChatMessagesPage";
 import { resetContact } from "../redux/reducers/chatContactNamePage";
+import { markReadResultType } from "./ChatContact";
 // import chatMessages from "../assets/messages.json";
 
 export interface messageType {
@@ -25,9 +26,10 @@ export interface messageType {
 }
 
 interface createMessageResultType {
+  status: number;
   success: boolean;
-  msg: string;
-  message_data: messageType;
+  message: string;
+  data: messageType;
 }
 
 let socket: Socket;
@@ -69,27 +71,28 @@ export default function Chat() {
     const text: string = messageText.value;
     messageText.value = "";
 
-    const res = await fetch(
-      `${serverURI}/create-message?receiver=${contactUsername}&text=${text}`,
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
+    const res = await fetch(`${serverURI}/api/messages/create-message`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ receiver: contactUsername, text: text }),
+    });
 
     const result: createMessageResultType = await res.json();
 
-    if (!result.success) {
+    if (result.status !== 200 && !result.success) {
       return;
     }
 
     const toSocket = {
       recipientId: contactUsername,
-      message_data: result.message_data,
+      message_data: result.data,
     };
 
     // messageD.push(result.message_data);
-    updateChatMessages(messages, result.message_data);
+    updateChatMessages(messages, result.data);
 
     socket.emit("new-message", toSocket);
 
@@ -130,17 +133,20 @@ export default function Chat() {
       // Message mark as read
 
       if (newMessage.contact_username === contactUsername) {
-        const res = await fetch(
-          `${serverURI}/mark-read-message?contact=${newMessage.contact_username}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const res = await fetch(`${serverURI}/api/messages/mark-as-read`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contact: newMessage.contact_username,
+          }),
+        });
 
-        const result = await res.json();
+        const result: markReadResultType = await res.json();
 
-        if (result.success) {
+        if (result.status === 200 && result.data.success) {
           console.log("Message marked as read");
         } else {
           console.log("Message not marked as read");

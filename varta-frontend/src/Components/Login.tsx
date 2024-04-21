@@ -7,8 +7,9 @@ import Loader from "../utils/Loader";
 import { showPopUp } from "../utils/PopUpMessage";
 
 interface loginResultType {
+  status: number;
   loggedIn: boolean;
-  username: string;
+  message: string;
 }
 
 export default function Login() {
@@ -47,27 +48,32 @@ export default function Login() {
       document.querySelector("[data-login-password]") as HTMLInputElement
     ).value;
 
-    const requestLink: string = `${serverURI}/login?username=${username}&password=${password}`;
-
     setLoginLoading(true);
 
-    const res = await fetch(requestLink, {
-      method: "GET",
+    const res = await fetch(`${serverURI}/api/users/login`, {
+      method: "POST",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
     });
 
     const result: loginResultType = await res.json();
 
     setLoginLoading(false);
 
-    if (result.loggedIn) {
-      showPopUp({ success: true, message: "User logged-in." });
+    if (result.status === 200 && result.loggedIn) {
+      showPopUp({ success: true, message: result.message });
       dispatch(fetchLoginStatus());
     } else {
       console.log("Could not log in user.");
       showPopUp({
-        success: true,
-        message: "Could not log in user. Please try again",
+        success: false,
+        message: result.message,
       });
     }
   };

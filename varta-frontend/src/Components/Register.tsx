@@ -4,13 +4,15 @@ import Loader from "../utils/Loader";
 import { showPopUp } from "../utils/PopUpMessage";
 
 interface registerResultType {
-  msg: string;
+  status: number;
   username: string;
   success: boolean;
+  message: string;
 }
 
 interface usernameAvailableResultType {
-  msg: string;
+  status: 200;
+  message: string;
   isAvailable: boolean;
 }
 
@@ -53,6 +55,9 @@ export default function Register() {
     (
       document.querySelector("[data-register-password]") as HTMLInputElement
     ).value = "";
+    (
+      document.querySelector("[data-register-c-password]") as HTMLInputElement
+    ).value = "";
   };
 
   const registerNewUser = async () => {
@@ -66,25 +71,31 @@ export default function Register() {
       document.querySelector("[data-register-password]") as HTMLInputElement
     ).value;
 
-    const requestLink: string = `${serverURI}/register?name=${name}&username=${registerUsername}&password=${password}`;
-
     setRegisterLoading(true);
 
-    const res = await fetch(requestLink, {
+    const res = await fetch(`${serverURI}/api/users/register`, {
       method: "POST",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        username: registerUsername,
+        password: password,
+      }),
     });
 
     const result: registerResultType = await res.json();
 
     setRegisterLoading(false);
 
-    if (result.success) {
+    if (result.status === 200 && result.success) {
       console.log("User created.");
 
       showPopUp({
         success: true,
-        message: "User has been created. Login to continue.",
+        message: result.message,
       });
 
       clearRegisterForm();
@@ -93,21 +104,25 @@ export default function Register() {
 
       showPopUp({
         success: false,
-        message: "Could not create user. Please try again.",
+        message: result.message,
       });
     }
   };
 
   useEffect(() => {
     const check = setTimeout(async () => {
-      const res = await fetch(
-        `${serverURI}/username-available?username=${username}`,
-        { method: "GET" }
-      );
+      if (username.length > 4) {
+        const res = await fetch(
+          `${serverURI}/api/users/username-available?username=${username}`,
+          {
+            method: "GET",
+          }
+        );
 
-      const result: usernameAvailableResultType = await res.json();
+        const result: usernameAvailableResultType = await res.json();
 
-      setUsernameAvailable(result.isAvailable);
+        if (result.status === 200) setUsernameAvailable(result.isAvailable);
+      }
     }, 1500);
 
     return () => clearTimeout(check);
@@ -157,12 +172,18 @@ export default function Register() {
                 Username:
               </label>
 
+              <li className="w-full list-inside text-left text-slate-700 text-[0.65rem] sm:text-[0.75rem] ">
+                {`Username minimum length is 5 characters (Alphanumeric) and start with alphabet.`}
+              </li>
+
               <input
                 type="text"
                 onChange={(e) => setUsername(e.target.value)}
+                minLength={5}
+                pattern="[a-z][a-z0-9]{4,}"
                 data-register-username
                 className={
-                  "w-full p-2 text-[0.85rem] sm:text-[1rem] rounded-[2px] outline outline-2 outline-offset-2 border-b-black border-b-2 focus:border-b-blue-700 focus:border-b-2 " +
+                  "w-full p-2 text-[0.85rem] sm:text-[1rem] rounded-[2px] outline outline-2 outline-offset-2 border-b-black border-b-2 focus:border-b-blue-700 focus:border-b-2 invalid:outline-red-500 " +
                   (usernameAvailable
                     ? "outline-white focus:outline-white"
                     : "outline-red-500 focus:outline-red-500")
@@ -181,12 +202,18 @@ export default function Register() {
                 Password:
               </label>
 
+              <li className="w-full list-inside text-left text-slate-700 text-[0.65rem] sm:text-[0.75rem] ">
+                {`Password minimum length is 5 characters and no whitespaces.`}
+              </li>
+
               <input
                 type="password"
                 onChange={() => matchPasswords()}
+                minLength={5}
+                pattern="^(?=.*[a-z])[a-zA-Z0-9!@#$%^&*()-_=+]{5,}$"
                 data-register-password
                 className={
-                  "w-full p-2 text-[0.85rem] sm:text-[1rem] rounded-[2px] outline outline-2 outline-offset-2 outline-white border-b-black border-b-2 focus:border-b-blue-700 focus:border-b-2 "
+                  "w-full p-2 text-[0.85rem] sm:text-[1rem] rounded-[2px] outline outline-2 outline-offset-2 outline-white border-b-black border-b-2 focus:border-b-blue-700 focus:border-b-2 invalid:outline-red-500 "
                 }
               />
             </div>
@@ -199,6 +226,7 @@ export default function Register() {
               <input
                 type="password"
                 onChange={() => matchPasswords()}
+                minLength={5}
                 data-register-c-password
                 className={
                   "w-full p-2 text-[0.85rem] sm:text-[1rem] rounded-[2px] outline outline-2 outline-offset-2 border-b-black border-b-2 focus:border-b-blue-700 focus:border-b-2" +

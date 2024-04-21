@@ -17,14 +17,21 @@ export const fetchChatMessagesData = createAsyncThunk(
   async (contact: string) => {
     const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
 
-    const res = await fetch(`${serverURI}/chat-messages?contact=${contact}`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const res = await fetch(
+      `${serverURI}/api/messages/chat-messages?contact=${contact}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
 
     const result = await res.json();
 
-    return result;
+    if (result.status !== 200) {
+      return [];
+    }
+
+    return result.data;
   }
 );
 

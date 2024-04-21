@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface resultType {
+  status: number;
   loggedIn: boolean;
   username: string;
   name: string;
@@ -19,12 +20,20 @@ export const fetchLoginStatus = createAsyncThunk(
   async () => {
     const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
 
-    const res = await fetch(`${serverURI}/check-login`, {
+    const res = await fetch(`${serverURI}/api/users/check-login`, {
       method: "GET",
       credentials: "include",
     });
 
     const result: resultType = await res.json();
+
+    if (result.status !== 200) {
+      return {
+        loggedIn: false,
+        username: "",
+        name: "",
+      };
+    }
 
     return result;
   }

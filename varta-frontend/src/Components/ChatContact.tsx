@@ -2,10 +2,11 @@ import { useCallback } from "react";
 
 import { useAppDispatch } from "../redux/hooks";
 import { fetchChatMessagesData } from "../redux/reducers/getChatMessagesPage";
+import { setContact } from "../redux/reducers/chatContactNamePage";
 
 import { dataForChat } from "./ChatContacts";
+
 import avatarPlaceholder from "../assets/images/avatar-placeholder.png";
-import { setContact } from "../redux/reducers/chatContactNamePage";
 
 interface Props {
   contactData: dataForChat;
@@ -16,13 +17,23 @@ interface setContactType {
   username: string;
 }
 
+export interface markReadResultDataType {
+  success: boolean;
+  message: string;
+}
+
+export interface markReadResultType {
+  status: number;
+  data: markReadResultDataType;
+}
+
 export default function ChatContact(props: Props) {
   const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
 
   const dispatch = useAppDispatch();
   const contactData = props.contactData;
 
-  console.log(contactData);
+  // console.log(contactData);
 
   const fetchChatMessages = useCallback((contact: string) => {
     const toSetContact: setContactType = {
@@ -40,21 +51,26 @@ export default function ChatContact(props: Props) {
     // ##################
     // Message mark as read
 
-    const res = await fetch(
-      `${serverURI}/mark-read-message?contact=${contact}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
-    );
+    const res = await fetch(`${serverURI}/api/messages/mark-as-read`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contact: contact,
+      }),
+    });
 
-    const result = await res.json();
+    const result: markReadResultType = await res.json();
 
-    if (result.success) {
-      console.log("Chat marked as read");
-    } else {
-      console.log("Chat not marked as read");
-    }
+    console.log(result.status);
+
+    // if (result.status === 200 && result.data.success) {
+    //   console.log("Chat marked as read");
+    // } else {
+    //   console.log("Chat not marked as read");
+    // }
 
     // ##################
   };

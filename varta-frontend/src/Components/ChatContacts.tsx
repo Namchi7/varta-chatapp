@@ -16,15 +16,21 @@ export interface dataForChat {
 }
 
 interface userResultType {
+  _id: number;
   username: string;
   name: string;
+}
+
+interface findUsernameInfoResultType {
+  status: number;
+  data: userResultType[];
 }
 
 export default function ChatContacts() {
   const dispatch = useAppDispatch();
 
   const [searchUsername, setSearchUsername] = useState("");
-  const [usernameResult, setUsernameResult] = useState([]);
+  const [usernameResult, setUsernameResult] = useState<userResultType[]>([]);
 
   const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
 
@@ -39,16 +45,20 @@ export default function ChatContacts() {
 
   const searchUsernameData = async () => {
     const res = await fetch(
-      `${serverURI}/find-username-info?username=${searchUsername}`,
+      `${serverURI}/api/users/find-username-info?username=${searchUsername}`,
       {
         method: "GET",
         credentials: "include",
       }
     );
 
-    const result = await res.json();
+    const result: findUsernameInfoResultType = await res.json();
 
-    setUsernameResult(result);
+    if (result.status === 200) {
+      setUsernameResult(result.data);
+    } else {
+      setUsernameResult([]);
+    }
   };
 
   const openNewChat = useCallback((name: string, contact: string) => {
@@ -97,7 +107,7 @@ export default function ChatContacts() {
       <div className="relative w-full p-2 self-end">
         {usernameResult && (
           <div className="absolute bottom-[4rem] left-0 right-0 translate-x-[0.4rem] w-[calc(100%-0.75rem)] max-h-[7.5rem] h-fit rounded-[4px] flex flex-col-reverse justify-start items-start bg-slate-400 overflow-y-scroll ">
-            {usernameResult!.map((user: userResultType, index: number) => {
+            {usernameResult!.map((user: userResultType) => {
               if (user.username !== username)
                 return (
                   <div
@@ -107,7 +117,7 @@ export default function ChatContacts() {
                     }}
                     data-contact-username-result
                     className="w-full text-left p-2 cursor-pointer "
-                    key={index}
+                    key={user._id}
                   >{`${user.name} (${user.username})`}</div>
                 );
             })}

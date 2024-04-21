@@ -76,13 +76,13 @@ export const markReadMessages = async (messageInfo) => {
       console.log("Message seen.");
       return {
         success: true,
-        msg: "Message marked as read.",
+        message: "Message marked as read.",
       };
     } else {
       console.log("Message unseen.");
       return {
         success: false,
-        msg: "Message not marked as read.",
+        message: "Message not marked as read.",
       };
     }
   } catch (error) {

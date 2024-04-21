@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { dataForChat } from "../../Components/ChatContacts";
 
+interface resultType {
+  status: number;
+  data: dataForChat[];
+}
+
 interface initialStateType {
   isLoading: boolean;
   isError: boolean;
@@ -12,14 +17,18 @@ export const fetchChatContactsData = createAsyncThunk(
   async () => {
     const serverURI: string | undefined = process.env.REACT_APP_SERVER_URI;
 
-    const res = await fetch(`${serverURI}/chats`, {
+    const res = await fetch(`${serverURI}/api/chats/chats`, {
       method: "GET",
       credentials: "include",
     });
 
-    const result = await res.json();
+    const result: resultType = await res.json();
 
-    return result;
+    if (result.status !== 200) {
+      return [];
+    }
+
+    return result.data;
   }
 );
 

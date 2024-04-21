@@ -8,7 +8,8 @@ export const createUser = async (userInfo) => {
       name: userInfo.name,
     });
 
-    await newUser.save();
+    const user = await newUser.save();
+    return user;
     // const verdict = await newUser.save();
     // console.log(verdict);
   } catch (error) {
@@ -28,8 +29,12 @@ export const getUser = async (username) => {
 
 export const searchUser = async (username) => {
   // try {
-  const userInfo = await UsersModel.find({ username: { $regex: username } });
-  console.log(username, userInfo);
+  const userInfo = await UsersModel.find(
+    { username: { $regex: username } },
+    { _id: 1, username: 1, name: 1 }
+  );
+  // console.log(username, userInfo);
+
   return userInfo;
   // } catch (error) {
   //   console.log(error);

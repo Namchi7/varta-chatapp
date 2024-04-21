@@ -12,8 +12,10 @@ interface PropsType {
 }
 
 interface logoutResultType {
+  status: 200;
   loggedIn: boolean;
   username: string;
+  message: string;
 }
 
 export default function Header(props: PropsType) {
@@ -29,7 +31,7 @@ export default function Header(props: PropsType) {
   const logoutUser = async () => {
     props.setLogoutLoading(true);
 
-    const res = await fetch(`${serverURI}/logout`, {
+    const res = await fetch(`${serverURI}/api/users/logout`, {
       method: "GET",
       credentials: "include",
     });
@@ -38,11 +40,11 @@ export default function Header(props: PropsType) {
 
     props.setLogoutLoading(false);
 
-    if (!result?.loggedIn) {
+    if (result.status === 200 && !result?.loggedIn) {
       showPopUp({ success: true, message: "User logged-out." });
       setLogoutCookie();
     } else {
-      showPopUp({ success: false, message: "Could not log out user." });
+      showPopUp({ success: false, message: result.message });
     }
   };
 
